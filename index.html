@@ -1044,7 +1044,7 @@ async function readFromDrive(){
       const data = await res.json();
       return data.state || null;
     }
-    if(res.status === 404){ driveFileId = null; localStorage.removeItem(FILE_ID_KEY); }
+    if(res.status === 404){ console.log("File not found or not public"); }
     return null;
   }catch(e){ return null; }
 }
@@ -1206,14 +1206,15 @@ window.addEventListener('load', ()=>{
 // ── CHECK IF READONLY MODE (shared link) ────────────────────────
 const urlParams = new URLSearchParams(window.location.search);
 const sharedFileId = urlParams.get('fileId');
-const IS_READONLY = !!sharedFileId;
+const HARDCODED_FILE_ID = '1ag6ge9XfjqzJ7l5kL6MHhJJqi3-_VYHV';
+const IS_READONLY = !!(sharedFileId || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.protocol !== 'file:'));
+const READONLY_FILE_ID = sharedFileId || HARDCODED_FILE_ID;
 
 async function loadReadonlyView(){
-  // Read-only mode: fetch Drive file without auth (file must be publicly readable)
   setStatus('READ-ONLY VIEW', 'Loading shared progress...', 'syncing');
   try{
     const res = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${sharedFileId}?alt=media&key=AIzaSyD-9tSrke72PluDxeYBsUqRH85P20aQfKA`
+      `https://www.googleapis.com/drive/v3/files/${READONLY_FILE_ID}?alt=media&key=AIzaSyD-9tSrke72PluDxeYBsUqRH85P20aQfKA`
     );
     if(res.ok){
       const data = await res.json();
